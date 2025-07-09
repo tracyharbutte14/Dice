@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collective Fortune Slot Machine</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            border: 3px solid #d4af37;
+            position: relative;
+        }
+        
+        header {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid #d4af37;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            color: #f8e71c;
+            text-shadow: 0 0 10px rgba(248, 231, 28, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+        
+        .theme-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            padding: 15px 0;
+            background: rgba(20, 20, 30, 0.7);
+        }
+        
+        .theme-btn {
+            background: rgba(80, 80, 120, 0.5);
+            color: white;
+            border: 2px solid #5d8aa8;
+            padding: 8px 15px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .theme-btn:hover {
+            background: rgba(93, 138, 168, 0.8);
+        }
+        
+        .theme-btn.active {
+            background: linear-gradient(to right, #ff8c00, #ffd700);
+            color: #000;
+            border-color: #ffd700;
+        }
+        
+        .game-area {
+            padding: 30px 20px;
+        }
+        
+        .slot-machine {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            perspective: 1000px;
+        }
+        
+        .reel {
+            width: 150px;
+            height: 150px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            border: 4px solid #d4af37;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            transform-style: preserve-3d;
+        }
+        
+        .reel-content {
+            position: absolute;
+            width: 100%;
+            transition: top 4s cubic-bezier(0.17, 0.85, 0.45, 1);
+        }
+        
+        .symbol {
+            width: 150px;
+            height: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(30, 30, 50, 0.8);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+        }
+        
+        .symbol img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        
+        .info-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .info-card {
+            background: rgba(30, 30, 50, 0.7);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid #5d8aa8;
+        }
+        
+        .info-label {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #a9d4ff;
+        }
+        
+        .info-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #f8e71c;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            background: linear-gradient(to bottom, #ff8c00, #ff6a00);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+            min-width: 150px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-spin {
+            background: linear-gradient(to bottom, #00c853, #009624);
+            font-size: 1.5rem;
+            padding: 18px 40px;
+        }
+        
+        .btn-bet {
+            background: linear-gradient(to bottom, #2979ff, #01579b);
+        }
+        
+        .btn-info {
+            background: linear-gradient(to bottom, #aa00ff, #7b1fa2);
+        }
+        
+        .free-spins {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 200, 83, 0.3);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: none;
+            border: 2px solid #00c853;
+        }
+        
+        .win-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            border: 4px solid gold;
+            z-index: 100;
+            display: none;
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.7);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 20px gold; }
+            50% { box-shadow: 0 0 50px gold; }
+            100% { box-shadow: 0 0 20px gold; }
+        }
+        
+        .win-title {
+            font-size: 3rem;
+            color: gold;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        
+        .win-amount {
+            font-size: 4rem;
+            color: #fff;
+            margin: 30px 0;
+            text-shadow: 0 0 20px #fff;
+        }
+        
+        .prize-info {
+            font-size: 1.2rem;
+            margin-top: 10px;
+            color: #a9d4ff;
+        }
+        
+        .paytable {
+            margin-top: 30px;
+            background: rgba(30, 30, 50, 0.7);
+            padding: 20px;
+            border-radius: 15px;
+            display: none;
+            border: 2px solid #5d8aa8;
+        }
+        
+        .paytable h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            color: #f8e71c;
+        }
+        
+        .symbol-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .symbol-card {
+            background: rgba(40, 40, 60, 0.8);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #5d8aa8;
+        }
+        
+        .symbol-card img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .symbol-name {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        
+        .symbol-value {
+            font-weight: bold;
+            color: #f8e71c;
+        }
+        
+        .theme-display {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.8rem;
+            color: #f8e71c;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(248, 231, 28, 0.5);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            font-size: 0.9rem;
+            color: #aaa;
+            border-top: 1px solid #444;
+        }
+        
+        @media (max-width: 768px) {
+            .slot-machine {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .reel {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .symbol {
+                width: 120px;
+                height: 120px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .btn {
+                padding: 12px 20px;
+                font-size: 1rem;
+                min-width: 120px;
+            }
+            
+            .btn-spin {
+                font-size: 1.3rem;
+                padding: 15px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Collective Fortune Slots</h1>
+            <div class="subtitle">Spin to win with thematic collective nouns!</div>
+        </header>
+        
+        <div class="theme-selector">
+            <div class="theme-btn active" data-theme="trucks">Convoy of Trucks</div>
+            <div class="theme-btn" data-theme="cards">Deck of Cards</div>
+            <div class="theme-btn" data-theme="eggs">Clutch of Eggs</div>
+            <div class="theme-btn" data-theme="satellites">Constellation of Satellites</div>
+            <div class="theme-btn" data-theme="colors">Riot of Colors</div>
+        </div>
+        
+        <div class="free-spins" id="freeSpinsCounter">
+            Free Spins: <span id="freeSpins">0</span>
+        </div>
+        
+        <div class="game-area">
+            <div class="theme-display" id="themeDisplay">Convoy of Trucks</div>
+            
+            <div class="slot-machine">
+                <div class="reel" id="reel1">
+                    <div class="reel-content" id="reelContent1"></div>
+                </div>
+                <div class="reel" id="reel2">
+                    <div class="reel-content" id="reelContent2"></div>
+                </div>
+                <div class="reel" id="reel3">
+                    <div class="reel-content" id="reelContent3"></div>
+                </div>
+            </div>
+            
+            <div class="info-panel">
+                <div class="info-card">
+                    <div class="info-label">Balance</div>
+                    <div class="info-value" id="balance">$10.00</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">Bet Amount</div>
+                    <div class="info-value" id="betAmount">$0.50</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">Last Win</div>
+                    <div class="info-value" id="lastWin">$0.00</div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn btn-spin" id="spinBtn">SPIN</button>
+                <button class="btn btn-bet" id="betUpBtn">BET +</button>
+                <button class="btn btn-bet" id="betDownBtn">BET -</button>
+                <button class="btn btn-info" id="paytableBtn">PAYTABLE</button>
+            </div>
+            
+            <div class="paytable" id="paytable">
+                <h3>Symbol Paytable</h3>
+                <div class="symbol-grid" id="symbolGrid">
+                    <!-- Symbols will be populated here -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="win-message" id="winMessage">
+            <div class="win-title" id="winTitle">WINNER!</div>
+            <div class="win-amount" id="winAmount">$0.00</div>
+            <div class="prize-info" id="prizeInfo"></div>
+            <button class="btn btn-spin" id="closeWinBtn">COLLECT WINNINGS</button>
+        </div>
+        
+        <footer>
+            <p>Collective Fortune Slots &copy; 2023 | For entertainment purposes only</p>
+        </footer>
+    </div>
+
+    <script>
+        // Theme configuration with image URLs
+        const themes = {
+            trucks: {
+                name: "Convoy of Trucks",
+                symbols: [
+                    { name: "Pickup Truck", value: 0.5, image: "https://images.unsplash.com/photo-1552519507-88aa2dfa9fdb?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Semi Truck", value: 0.8, image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Delivery Truck", value: 1.0, image: "https://images.unsplash.com/photo-1592840331052-16e15c2c6f95?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Fire Truck", value: 1.5, image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Tow Truck", value: 2.0, image: "https://images.unsplash.com/photo-1601362840469-4eab1e4e46a5?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Dump Truck", value: 2.5, image: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Cement Mixer", value: 3.0, image: "https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Scatter", value: "Free Spins", image: "https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Bonus", value: "Progressive", image: "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=200&q=80" }
+                ]
+            },
+            cards: {
+                name: "Deck of Cards",
+                symbols: [
+                    { name: "Ace of Hearts", value: 0.5, image: "https://images.unsplash.com/photo-1516550893923-42d28e5677af?auto=format&fit=crop&w=200&q=80" },
+                    { name: "King of Spades", value: 0.8, image: "https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Queen of Diamonds", value: 1.0, image: "https://images.unsplash.com/photo-1581389262062-a8c9ae1d3f2d?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Jack of Clubs", value: 1.5, image: "https://images.unsplash.com/photo-1612548403247-aa2873e9426d?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Joker", value: 2.0, image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Back Design", value: 2.5, image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Card Stack", value: 3.0, image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Scatter", value: "Free Spins", image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Bonus", value: "Progressive", image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" }
+                ]
+            },
+            eggs: {
+                name: "Clutch of Eggs",
+                symbols: [
+                    { name: "Chicken Egg", value: 0.5, image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Duck Egg", value: 0.8, image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Quail Egg", value: 1.0, image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Ostrich Egg", value: 1.5, image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Decorated Egg", value: 2.0, image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Easter Egg", value: 2.5, image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Golden Egg", value: 3.0, image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Scatter", value: "Free Spins", image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Bonus", value: "Progressive", image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" }
+                ]
+            },
+            satellites: {
+                name: "Constellation of Satellites",
+                symbols: [
+                    { name: "Communication", value: 0.5, image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Weather", value: 0.8, image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" },
+                    { name: "GPS", value: 1.0, image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Space Telescope", value: 1.5, image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Research", value: 2.0, image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Military", value: 2.5, image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Space Station", value: 3.0, image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Scatter", value: "Free Spins", image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Bonus", value: "Progressive", image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" }
+                ]
+            },
+            colors: {
+                name: "Riot of Colors",
+                symbols: [
+                    { name: "Red", value: 0.5, image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Blue", value: 0.8, image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Green", value: 1.0, image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Yellow", value: 1.5, image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" },
+                    { name: "Purple", value: 2.0, image: "https://images.unsplash.com/photo-1581389262062-5a7e5e8a5a0d?auto=format&fit=crop&w=200&q=80" },
+                    {
